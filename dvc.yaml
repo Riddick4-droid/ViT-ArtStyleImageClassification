@@ -1,0 +1,27 @@
+# dvc.yaml
+stages:
+  ingest:
+    cmd: python main.py --config configs/config.yaml ingest
+    outs:
+      - data/.download_complete:
+          cache: false
+
+  train:
+    cmd: python main.py --config configs/config.yaml train
+    deps:
+      - src/
+      - configs/config.yaml
+      - data/.download_complete
+    outs:
+      - artefacts/models/best_model.pth
+
+  evaluate:
+    cmd: python main.py --config configs/config.yaml evaluate
+    deps:
+      - artefacts/models/best_model.pth
+      - src/
+      - configs/config.yaml
+    outs:
+      - artefacts/plots/confusion_matrix.png
+      - artefacts/plots/per_class_accuracy.png
+      - artefacts/plots/classification_report.txt
